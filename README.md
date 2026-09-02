@@ -1,0 +1,135 @@
+# Registro Académico
+
+Registro de notas para secundaria (MEP, Costa Rica). Una sola página web, sin instalar nada:
+exámenes, tareas, trabajo cotidiano y asistencia con pesos configurables por sección,
+calendario de días lectivos, acta de calificaciones lista para imprimir e inicio de sesión
+con Google para que todo quede guardado en la nube.
+
+- **Cada rubro tiene su fórmula.** Escala (`obtenido ÷ base × peso`), varias pruebas
+  (`Σ puntos ÷ Σ bases × peso`) o puntos directos.
+- **La asistencia se calcula sola.** Se digita la cantidad de días asistidos y se divide entre
+  los días lectivos que salen del calendario del periodo.
+- **Días no lectivos.** Feriados, reuniones, actos cívicos: se marcan en el calendario y el
+  divisor de la asistencia se ajusta solo.
+- **Todo es editable**: nombres de secciones, institución, rubros, pesos, cantidad de exámenes,
+  nota mínima de aprobación y etiquetas.
+
+> **Privacidad**: este repositorio **no contiene ningún dato de estudiantes**. Las listas y las
+> notas viven en su propia base de datos de Firebase, protegidas por las reglas de
+> `firestore.rules`, que solo permiten a cada docente leer y escribir su propio registro.
+
+---
+
+## Puesta en marcha (una sola vez)
+
+### 1. Crear el proyecto en Firebase
+
+1. Entre a <https://console.firebase.google.com> con su cuenta de Google → **Crear un proyecto**.
+2. **Compilación → Authentication → Comenzar** → pestaña **Sign-in method** → **Google** →
+   activar → elegir correo de soporte → **Guardar**.
+3. **Compilación → Firestore Database → Crear base de datos** → modo de producción.
+4. **Firestore Database → Reglas**: borre lo que haya y pegue el contenido de
+   [`firestore.rules`](firestore.rules) → **Publicar**.
+5. Engranaje ⚙ **Configuración del proyecto → Sus apps** → icono **`</>`** (Web) →
+   registrar la app → copiar el bloque `firebaseConfig`.
+
+### 2. Pegar la configuración
+
+Abra `index.html` en un editor de texto, busque `const FIREBASE_CONFIG` (cerca del final del
+archivo) y pegue sus valores:
+
+```js
+const FIREBASE_CONFIG = {
+  apiKey: "AIza...",
+  authDomain: "su-proyecto.firebaseapp.com",
+  projectId: "su-proyecto",
+  storageBucket: "su-proyecto.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};
+```
+
+Estos valores **no son secretos**: van dentro de cualquier página web que use Firebase, y por eso
+pueden estar en un repositorio público. Lo que protege los datos son las reglas del paso 1.4.
+
+### 3. Publicar con GitHub Pages
+
+En este repositorio: **Settings → Pages → Build and deployment → Source: Deploy from a branch**
+→ rama `main`, carpeta `/ (root)` → **Save**.
+
+En un par de minutos la app queda en:
+
+```
+https://SU-USUARIO.github.io/registro-academico/
+```
+
+### 4. Autorizar el dominio en Firebase ← *el paso que más se olvida*
+
+Sin esto, el botón de Google da el error `auth/unauthorized-domain`.
+
+Firebase → **Authentication → Settings → Dominios autorizados → Agregar dominio** →
+escriba `SU-USUARIO.github.io` → **Agregar**.
+
+### 5. Cargar sus estudiantes
+
+Abra la dirección de GitHub Pages → **Continuar con Google** → menú lateral
+**Respaldo y datos → Restaurar desde archivo** → elija su `mis-estudiantes.json`.
+
+Eso sube todo a su cuenta. De ahí en adelante no hay que volver a hacerlo: entra desde
+cualquier computadora, tablet o celular y encuentra el registro igual.
+
+---
+
+## Uso diario
+
+- Se digita y **se guarda solo**. En la barra lateral, abajo, aparece su nombre con un punto
+  verde y la hora del último guardado.
+- **Sin internet también funciona**: los cambios se guardan en el navegador y suben cuando
+  vuelve la conexión.
+- Si abre la app en dos dispositivos, los cambios del otro aparecen solos — nunca mientras
+  usted está digitando.
+- La primera vez que inicia sesión en una computadora donde ya había notas digitadas, la app
+  compara las dos versiones y le deja elegir cuál conservar. **Nunca borra nada sin preguntar.**
+- Aun con la nube, conviene bajar un respaldo `.json` de vez en cuando desde
+  **Respaldo y datos**.
+
+### Atajos
+
+| Tecla | Acción |
+|---|---|
+| `Tab`, `↑`, `↓`, `Enter` | Moverse entre celdas |
+| `/` | Ir al buscador |
+| `Ctrl + Z` | Deshacer |
+| `Ctrl + P` | Imprimir el acta |
+
+---
+
+## Agregar Microsoft o Facebook
+
+Google funciona apenas se activa en Firebase. Los otros dos necesitan además registrar una
+aplicación en Azure o en Meta for Developers. Cuando los tenga activados en
+**Firebase → Authentication → Sign-in method**, cambie en `index.html`:
+
+```js
+const PROVEEDORES = { google: true, microsoft: true, facebook: true };
+```
+
+---
+
+## Actualizar la app
+
+Edite `index.html`, guarde y suba el cambio:
+
+```bash
+git add -A && git commit -m "Ajustes" && git push
+```
+
+GitHub Pages vuelve a publicar en un par de minutos.
+
+---
+
+## Sin cuenta
+
+El mismo `index.html` abierto con doble clic sigue funcionando sin iniciar sesión, guardando
+en ese navegador. El inicio de sesión con Google **no** funciona así: los proveedores exigen
+una dirección `https://`, por eso hace falta GitHub Pages.

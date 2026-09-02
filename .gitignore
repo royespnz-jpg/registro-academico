@@ -1,0 +1,15 @@
+# ─────────────────────────────────────────────────────────────
+#  NUNCA subir datos de estudiantes a un repositorio público.
+#  Estos archivos se quedan solo en su computadora.
+# ─────────────────────────────────────────────────────────────
+mis-estudiantes.json
+*respaldo*.json
+registro-*.json
+notas-*.csv
+*.xlsx
+
+# Archivos temporales
+_*.html
+_*.txt
+.DS_Store
+Thumbs.db
