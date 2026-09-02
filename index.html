@@ -2068,10 +2068,12 @@ const FIREBASE_CONFIG = {
 };
 
 /* Proveedores de inicio de sesión que se muestran en la pantalla de acceso.
-   Google funciona apenas se activa en Firebase. Microsoft y Facebook exigen
-   además registrar una app en Azure / Meta; póngalos en true cuando los tenga
-   configurados en Firebase → Authentication → Sign-in method. */
-const PROVEEDORES = { google: true, microsoft: false, facebook: false };
+   Cada uno debe estar activado en Firebase → Authentication → Sign-in method.
+   Google se activa con dos clics. Microsoft y Facebook exigen además registrar
+   una app en Azure y en Meta for Developers; mientras eso no esté hecho, el
+   botón aparece pero avisa que el proveedor no está activado.
+   Para ocultar alguno, póngalo en false. */
+const PROVEEDORES = { google: true, microsoft: true, facebook: true };
 
 const CFG_KEY  = 'registro-fb-config';
 const MODE_KEY = 'registro-modo';

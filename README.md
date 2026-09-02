@@ -104,14 +104,22 @@ cualquier computadora, tablet o celular y encuentra el registro igual.
 
 ---
 
-## Agregar Microsoft o Facebook
+## Proveedores de inicio de sesión
 
-Google funciona apenas se activa en Firebase. Los otros dos necesitan además registrar una
-aplicación en Azure o en Meta for Developers. Cuando los tenga activados en
-**Firebase → Authentication → Sign-in method**, cambie en `index.html`:
+La pantalla de acceso muestra los tres: **Google, Microsoft y Facebook**. Cada uno debe estar
+activado en **Firebase → Authentication → Sign-in method**:
+
+| Proveedor | Qué hay que hacer |
+|---|---|
+| **Google** | Activarlo en Firebase y elegir un correo de soporte. Dos clics, nada más. |
+| **Microsoft** | Además de activarlo, registrar una aplicación en [Azure Portal](https://portal.azure.com) (App registrations) y pegar en Firebase el *Application ID* y el *secret*. |
+| **Facebook** | Además de activarlo, crear una app en [Meta for Developers](https://developers.facebook.com), agregar el producto *Facebook Login* y pegar en Firebase el *App ID* y el *App Secret*. |
+
+Mientras un proveedor no esté activado, su botón aparece pero al pulsarlo avisa
+«Ese proveedor no está activado en Firebase». Para esconder alguno, en `index.html`:
 
 ```js
-const PROVEEDORES = { google: true, microsoft: true, facebook: true };
+const PROVEEDORES = { google: true, microsoft: false, facebook: false };
 ```
 
 ---
