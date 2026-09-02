@@ -30,8 +30,17 @@ con Google para que todo quede guardado en la nube.
 3. **Compilación → Firestore Database → Crear base de datos** → modo de producción.
 4. **Firestore Database → Reglas**: borre lo que haya y pegue el contenido de
    [`firestore.rules`](firestore.rules) → **Publicar**.
-5. Engranaje ⚙ **Configuración del proyecto → Sus apps** → icono **`</>`** (Web) →
-   registrar la app → copiar el bloque `firebaseConfig`.
+5. Engranaje ⚙ **Configuración del proyecto** → pestaña **General** → bajar hasta
+   **Sus apps** → icono **`</>`** (Web) → poner un apodo → **Registrar app** →
+   copiar el bloque `firebaseConfig`.
+
+> ⚠️ **No confunda con la pestaña «Cuentas de servicio».** Ahí Firebase muestra un código con
+> `firebase-admin` y un `serviceAccountKey.json`: eso es para servidores con Node.js y esa
+> llave es **privada**. Si se sube a un repositorio público, cualquiera puede leer y borrar
+> toda la base de datos. Para esta app no se necesita.
+>
+> La configuración correcta es la de la pestaña **General**, y se reconoce porque empieza con
+> `apiKey` y `authDomain`.
 
 ### 2. Pegar la configuración
 

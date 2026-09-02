@@ -8,6 +8,15 @@ registro-*.json
 notas-*.csv
 *.xlsx
 
+# Llaves privadas de Firebase (Admin SDK). NUNCA deben subirse:
+# dan control total sobre el proyecto.
+serviceAccountKey.json
+*service-account*.json
+*serviceaccount*.json
+*-firebase-adminsdk-*.json
+*.pem
+*.key
+
 # Archivos temporales
 _*.html
 _*.txt
