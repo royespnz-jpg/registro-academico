@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Registro Académico · Saiden Ortiz Gómez</title>
+<title>Registro Académico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:SOFT,WONK,opsz,wght@0..100,0..1,9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -126,8 +126,8 @@ html[data-theme="dark"] .crest{background:linear-gradient(160deg,#2E2822 0%,#191
 .sec{
   width:100%;display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:7px;
   text-align:left;color:var(--ink-2);position:relative;transition:background .14s,color .14s;
-  animation:slideIn .34s cubic-bezier(.22,.8,.32,1) backwards;
 }
+body.booting .sec{animation:slideIn .34s cubic-bezier(.22,.8,.32,1) backwards}
 @keyframes slideIn{from{opacity:0;transform:translateX(-7px)}}
 .sec:hover{background:var(--surface-3);color:var(--ink)}
 .sec.on{background:var(--surface);box-shadow:var(--sh-1);color:var(--ink)}
@@ -190,8 +190,8 @@ html[data-theme="dark"] .btn.primary:hover{background:var(--brass-2);color:#1B17
 
 /* ============================ CIFRAS ============================ */
 .kpis{display:flex;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--rule);overflow-x:auto}
-.kpi{padding:12px 20px 13px;border-right:1px solid var(--rule-2);min-width:112px;flex:none;
-  animation:riseIn .4s cubic-bezier(.22,.8,.32,1) backwards}
+.kpi{padding:12px 20px 13px;border-right:1px solid var(--rule-2);min-width:112px;flex:none}
+body.booting .kpi{animation:riseIn .4s cubic-bezier(.22,.8,.32,1) backwards}
 @keyframes riseIn{from{opacity:0;transform:translateY(5px)}}
 .kpi:first-child{padding-left:0}
 .kpi:last-child{border-right:0}
@@ -580,6 +580,119 @@ body.gated .app{filter:blur(3px) saturate(.8);pointer-events:none;user-select:no
 @keyframes pulse{50%{opacity:.3}}
 
 /* ============================================================
+   MOVIMIENTO
+   Curvas y tiempos únicos para toda la app. La regla: el
+   movimiento explica una causa y su efecto; nunca decora.
+   ============================================================ */
+:root{
+  --d-1:140ms;   /* respuesta inmediata: hover, press */
+  --d-2:220ms;   /* cambios de estado */
+  --d-3:340ms;   /* entradas y desplazamientos */
+  --e-out:cubic-bezier(.22,.85,.32,1);        /* entra */
+  --e-in:cubic-bezier(.5,0,.75,0);            /* sale */
+  --e-spring:cubic-bezier(.34,1.4,.5,1);      /* rebote contenido */
+}
+
+/* Quien pide menos movimiento, recibe menos movimiento. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+/* ---------- indicador deslizante de secciones ---------- */
+.sec-list{position:relative}
+.sec-ind{
+  position:absolute;left:9px;right:9px;top:0;height:0;border-radius:7px;
+  background:var(--surface);box-shadow:var(--sh-1);opacity:0;pointer-events:none;z-index:0;
+  transition:transform var(--d-3) var(--e-spring), height var(--d-2) var(--e-out), opacity var(--d-2);
+}
+.sec-ind::before{
+  content:"";position:absolute;left:-9px;top:50%;transform:translateY(-50%);
+  width:3px;height:22px;border-radius:0 3px 3px 0;background:var(--brass);
+}
+.sec-ind.jump{transition:height var(--d-2) var(--e-out), opacity var(--d-2)}
+.sec{position:relative;z-index:1}
+.sec.on{background:transparent;box-shadow:none}
+.sec.on::before{display:none}
+.sec:hover:not(.on){background:var(--surface-3)}
+
+/* ---------- pastilla deslizante de filtros ---------- */
+.filters{position:relative}
+.fpill{
+  position:absolute;top:2px;bottom:2px;left:0;width:0;border-radius:5px;
+  background:var(--surface);box-shadow:var(--sh-1);opacity:0;pointer-events:none;z-index:0;
+  transition:transform var(--d-2) var(--e-spring), width var(--d-2) var(--e-out), opacity var(--d-1);
+}
+.fpill.jump{transition:opacity var(--d-1)}
+.fbtn{position:relative;z-index:1}
+.fbtn.on{background:transparent;box-shadow:none}
+
+/* ---------- entrada escalonada de las filas ---------- */
+@keyframes rowIn{from{opacity:0;transform:translateY(4px)}}
+.grid-wrap.fresh tbody tr{
+  animation:rowIn var(--d-3) var(--e-out) backwards;
+  animation-delay:calc(var(--i,0) * 16ms);
+}
+.grid-wrap.fresh tfoot td{animation:rowIn var(--d-3) var(--e-out) backwards;animation-delay:260ms}
+
+/* ---------- la nota parpadea cuando cambia ---------- */
+@keyframes flash{
+  0%{background:var(--brass-soft);box-shadow:inset 0 0 0 1.5px var(--brass-line)}
+  100%{background:transparent;box-shadow:inset 0 0 0 1.5px transparent}
+}
+td.flash{animation:flash 620ms var(--e-out)}
+
+/* ---------- retroalimentación al presionar ---------- */
+.btn:active:not([disabled]){transform:scale(.975);box-shadow:none}
+.sbtn:active,.acct:active,.sec:active{transform:scale(.985)}
+.sbtn,.acct{transition:background var(--d-1),color var(--d-1),transform var(--d-1) var(--e-out)}
+.sec{transition:background var(--d-1),color var(--d-1),transform var(--d-1) var(--e-out)}
+.gbtn:active:not([disabled]){transform:scale(.985)}
+.fbtn{transition:color var(--d-1)}
+.day{transition:background var(--d-1),color var(--d-1),transform var(--d-1) var(--e-out)}
+.day.lect:active,.day.off:active{transform:scale(.88)}
+.mode-btn,.daybtn{transition:background var(--d-1),border-color var(--d-1),color var(--d-1),transform var(--d-1)}
+.mode-btn:active,.daybtn:active{transform:scale(.96)}
+.ico-btn,.row-del,.row-info,.x{transition:background var(--d-1),color var(--d-1),transform var(--d-1) var(--e-out)}
+.ico-btn:active,.row-del:active,.row-info:active,.x:active{transform:scale(.9)}
+
+/* ---------- entradas del armazón ---------- */
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}}
+.topbar,.toolbar{animation:fadeSlide var(--d-3) var(--e-out) backwards}
+.toolbar{animation-delay:40ms}
+body.booting .kpi{animation:riseIn var(--d-3) var(--e-out) backwards}
+.side .brand{animation:fadeSlide var(--d-3) var(--e-out) backwards}
+.term-card{animation:fadeSlide var(--d-3) var(--e-out) backwards;animation-delay:60ms}
+
+/* ---------- diálogos: entran desde donde nacieron ---------- */
+.modal{transform:translateY(12px) scale(.97);transition:transform var(--d-3) var(--e-spring),opacity var(--d-2) var(--e-out)}
+.scrim{transition:opacity var(--d-2) var(--e-out)}
+.scrim.closing{transition-duration:var(--d-1);transition-timing-function:var(--e-in)}
+
+/* ---------- avisos ---------- */
+.toast{animation:tin var(--d-3) var(--e-spring)}
+@keyframes tin{from{opacity:0;transform:translateY(14px) scale(.94)}}
+.toast.leaving{animation:tout var(--d-1) var(--e-in) forwards}
+@keyframes tout{to{opacity:0;transform:translateY(6px) scale(.97)}}
+
+/* ---------- barra de distribución ---------- */
+.dist i{transition:width var(--d-3) var(--e-out)}
+
+/* ---------- celdas ---------- */
+input.score{transition:background var(--d-1),box-shadow var(--d-1) var(--e-out),color var(--d-1)}
+.name-cell input{transition:background var(--d-1),border-color var(--d-1),box-shadow var(--d-1)}
+.name-act{transition:opacity var(--d-1) var(--e-out)}
+tbody tr td{transition:background var(--d-1)}
+.badge{transition:background var(--d-2),color var(--d-2)}
+
+/* ---------- puntos de estado ---------- */
+.dot{transition:background var(--d-2),box-shadow var(--d-2)}
+
+/* ============================================================
    IMPRESIÓN / ACTA OFICIAL
    ============================================================ */
 #printRoot{display:none}
@@ -657,7 +770,7 @@ table.acta tfoot td{background:#EAEAEA;font-weight:700;font-size:8pt}
         <div class="crest" id="crestLetter">R</div>
         <div style="min-width:0">
           <div class="brand-t">Registro Académico</div>
-          <div class="brand-s" id="brandTeacher">Saiden Ortiz Gómez</div>
+          <div class="brand-s" id="brandTeacher"></div>
         </div>
       </div>
     </div>
@@ -672,7 +785,7 @@ table.acta tfoot td{background:#EAEAEA;font-weight:700;font-size:8pt}
     </button>
 
     <div class="side-label">Secciones <span id="secCount" style="margin-left:auto;color:var(--ink-4)"></span></div>
-    <nav class="sec-list" id="secList"></nav>
+    <nav class="sec-list" id="secList"><span class="sec-ind" id="secInd"></span><div id="secItems"></div></nav>
 
     <div class="side-foot">
       <button class="sbtn" id="btnAddSection">
@@ -699,7 +812,7 @@ table.acta tfoot td{background:#EAEAEA;font-weight:700;font-size:8pt}
   <!-- =================== MAIN =================== -->
   <main class="main">
     <header class="topbar">
-      <button class="btn icon ghost menu-btn" id="menuBtn" title="Menú">
+      <button class="btn icon ghost menu-btn" id="menuBtn" title="Menú" aria-label="Abrir menú de secciones">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
       </button>
       <div class="tb-title">
@@ -736,7 +849,7 @@ table.acta tfoot td{background:#EAEAEA;font-weight:700;font-size:8pt}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         <input type="search" id="search" placeholder="Buscar estudiante…" autocomplete="off">
       </label>
-      <div class="filters" id="filters"></div>
+      <div class="filters" id="filters"><span class="fpill" id="fpill"></span><div id="filterItems" style="display:contents"></div></div>
       <span class="chip" id="chipDays"></span>
       <span class="chip" id="chipWeights"></span>
       <div class="spacer"></div>
@@ -853,7 +966,7 @@ table.acta tfoot td{background:#EAEAEA;font-weight:700;font-size:8pt}
 </div>
 
 <div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
-<div class="toast-wrap" id="toasts"></div>
+<div class="toast-wrap" id="toasts" role="status" aria-live="polite"></div>
 <script>
 "use strict";
 
@@ -1117,9 +1230,11 @@ const ICO = {
 };
 
 function renderAll(){
+  GRID_ANIM = true;
   document.documentElement.setAttribute('data-theme', S.settings.theme);
   $('#themeLabel').textContent = S.settings.theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
-  $('#brandTeacher').textContent = S.teacher || '—';
+  $('#brandTeacher').textContent = S.teacher || 'Sin configurar';
+  document.title = 'Registro Académico' + (S.teacher ? ' · ' + S.teacher : '');
   renderTerm(); renderSections(); renderHeader(); renderGrid();
 }
 
@@ -1131,9 +1246,12 @@ function renderTerm(){
 }
 
 function renderSections(){
-  const box = $('#secList');
+  const box = $('#secItems');
   $('#secCount').textContent = S.sections.length;
-  if (!S.sections.length) { box.innerHTML = '<div style="padding:18px;font-size:12px;color:var(--ink-4);text-align:center">Sin secciones</div>'; return; }
+  if (!S.sections.length) {
+    box.innerHTML = '<div style="padding:18px;font-size:12px;color:var(--ink-4);text-align:center">Sin secciones</div>';
+    $('#secInd').style.opacity = 0; return;
+  }
   box.innerHTML = S.sections.map(s => {
     const st = sectionStats(s);
     const on = s.id === S.active ? ' on' : '';
@@ -1143,6 +1261,32 @@ function renderSections(){
       '<span class="sec-sub">' + s.students.length + ' estudiantes · ' + st.lect + ' días</span></span>' +
       '<span class="sec-avg">' + (st.evaluated ? nf(st.avg, 0) : '—') + '</span></button>';
   }).join('');
+  moverIndicador();
+  requestAnimationFrame(moverIndicador);
+}
+
+/** Desliza el fondo de la sección activa hasta su lugar. */
+function moverIndicador(){
+  const ind = $('#secInd'), on = $('#secItems .sec.on');
+  if (!ind) return;
+  if (!on) { ind.style.opacity = '0'; return; }
+  const primera = ind.style.opacity !== '1';
+  if (primera) ind.classList.add('jump');
+  ind.style.opacity = '1';
+  ind.style.height = on.offsetHeight + 'px';
+  ind.style.transform = 'translateY(' + on.offsetTop + 'px)';
+  if (primera) requestAnimationFrame(() => requestAnimationFrame(() => ind.classList.remove('jump')));
+}
+function moverPastilla(){
+  const pill = $('#fpill'), on = $('#filterItems .fbtn.on');
+  if (!pill) return;
+  if (!on) { pill.style.opacity = '0'; return; }
+  const primera = pill.style.opacity !== '1';
+  if (primera) pill.classList.add('jump');
+  pill.style.opacity = '1';
+  pill.style.width = on.offsetWidth + 'px';
+  pill.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+  if (primera) requestAnimationFrame(() => requestAnimationFrame(() => pill.classList.remove('jump')));
 }
 
 function renderHeader(){
@@ -1191,10 +1335,12 @@ function renderFiltros(sec, st){
     ['todos', 'Todos'], ['aprobados', 'Aprobados'], ['riesgo', 'En riesgo'],
     ['reprobados', 'Reprobados'], ['sindatos', 'Sin datos'], ['retirados', 'Retirados']
   ];
-  $('#filters').innerHTML = defs
+  $('#filterItems').innerHTML = defs
     .filter(d => d[0] !== 'retirados' || cuenta.retirados > 0)
-    .map(d => '<button class="fbtn' + (FILTRO === d[0] ? ' on' : '') + '" data-filtro="' + d[0] + '">' +
-      d[1] + '<i>' + cuenta[d[0]] + '</i></button>').join('');
+    .map(d => '<button class="fbtn' + (FILTRO === d[0] ? ' on' : '') + '" data-filtro="' + d[0] + '"' +
+      ' aria-pressed="' + (FILTRO === d[0]) + '">' + d[1] + '<i>' + cuenta[d[0]] + '</i></button>').join('');
+  moverPastilla();
+  requestAnimationFrame(moverPastilla);
 }
 function kpi(l, v, extra, cls){
   return '<div class="kpi ' + (cls||'') + '"><div class="kpi-l">' + l + '</div><div class="kpi-v">' + v + (extra||'') + '</div></div>';
@@ -1256,14 +1402,15 @@ function renderGrid(){
   }
   list.forEach(stu => {
     const c = computeStudent(sec, stu, lect);
-    let row = '<tr data-row="' + stu.id + '"' + (esRetirado(stu) ? ' class="out"' : '') + '>' +
+    let row = '<tr data-row="' + stu.id + '"' + (esRetirado(stu) ? ' class="out"' : '') +
+      ' style="--i:' + Math.min(list.indexOf(stu), 18) + '">' +
       '<td class="c-idx sticky-l">' + idx.get(stu.id) + '</td>' +
       '<td class="c-name sticky-l"><div class="name-cell">' +
         '<input value="' + esc(stu.name) + '" data-name="' + stu.id + '" spellcheck="false" placeholder="Nombre del estudiante">' +
         (stu.adec ? '<span class="adec" title="Adecuación ' + esc(stu.adec) + '">' + esc(ADEC_CORTO[stu.adec] || '') + '</span>' : '') +
         '<span class="name-act">' +
-          '<button class="row-info" data-info="' + stu.id + '" title="Ficha del estudiante">' + ICO.info + '</button>' +
-          '<button class="row-del" data-del="' + stu.id + '" title="Eliminar estudiante">' + ICO.trash + '</button>' +
+          '<button class="row-info" data-info="' + stu.id + '" title="Ficha del estudiante" aria-label="Ver ficha del estudiante">' + ICO.info + '</button>' +
+          '<button class="row-del" data-del="' + stu.id + '" title="Eliminar estudiante" aria-label="Eliminar estudiante">' + ICO.trash + '</button>' +
         '</span>' +
       '</div></td>';
     sec.rubros.forEach((r, ri) => {
@@ -1299,6 +1446,12 @@ function renderGrid(){
             '<td class="cond"><span style="font-size:11px;color:var(--ink-3)">' + st.pass + ' / ' + st.evaluated + ' aprob.</span></td></tr>';
   }
 
+  if (GRID_ANIM) {
+    wrap.classList.add('fresh');
+    clearTimeout(wrap._animT);
+    wrap._animT = setTimeout(() => wrap.classList.remove('fresh'), 700);
+  } else wrap.classList.remove('fresh');
+  GRID_ANIM = false;
   wrap.innerHTML =
     '<table class="grid"><thead>' + h1 + h2 + '</thead><tbody>' + body + '</tbody>' +
     (foot ? '<tfoot>' + foot + '</tfoot>' : '') + '</table>' +
@@ -1331,6 +1484,15 @@ function condBadge(sec, c, stu){
 }
 
 /** Recalcula solo la fila tocada (mantiene el foco del cursor). */
+/** Marca visualmente la celda que acaba de cambiar de valor. */
+function destellar(td){
+  if (!td) return;
+  td.classList.remove('flash');
+  void td.offsetWidth;
+  td.classList.add('flash');
+  clearTimeout(td._flashT);
+  td._flashT = setTimeout(() => td.classList.remove('flash'), 700);
+}
 function refreshRow(sec, stu){
   const lect = lectiveDays(sec);
   const c = computeStudent(sec, stu, lect);
@@ -1339,7 +1501,12 @@ function refreshRow(sec, stu){
     if (cell) cell.textContent = nf(c.parts[ri].pct, S.settings.decimals);
   });
   const f = document.querySelector('[data-final="' + stu.id + '"]');
-  if (f) { f.textContent = nf(c.reported, S.settings.round === 'none' ? S.settings.decimals : (S.settings.round === 'one' || S.settings.round === 'half' ? 1 : 0)); f.style.color = gradeColor(sec, c); }
+  if (f) {
+    const nuevo = nf(c.reported, S.settings.round === 'none' ? S.settings.decimals : (S.settings.round === 'one' || S.settings.round === 'half' ? 1 : 0));
+    if (f.textContent !== nuevo) destellar(f.closest('td'));
+    f.textContent = nuevo;
+    f.style.color = gradeColor(sec, c);
+  }
   const cd = document.querySelector('[data-cond="' + stu.id + '"]');
   if (cd) cd.innerHTML = condBadge(sec, c, stu);
   renderHeader(); renderSections(); refreshFoot(sec);
@@ -1556,13 +1723,16 @@ function openModal(html, cls){
   if (f) setTimeout(() => f.focus(), 60);
 }
 function closeModal(){
-  $('#scrim').classList.remove('show');
+  const sc = $('#scrim');
+  sc.classList.add('closing');
+  setTimeout(() => sc.classList.remove('closing'), 200);
+  sc.classList.remove('show');
   if (onCloseModal) { const f = onCloseModal; onCloseModal = null; f(); }
   setTimeout(() => { if (!$('#scrim').classList.contains('show')) $('#modal').innerHTML = ''; }, 200);
 }
 function mHead(title, sub){
   return '<div class="m-head"><div><h2>' + esc(title) + '</h2>' + (sub ? '<p>' + esc(sub) + '</p>' : '') + '</div>' +
-         '<button class="x" data-close>' + ICO.x + '</button></div>';
+         '<button class="x" data-close aria-label="Cerrar">' + ICO.x + '</button></div>';
 }
 
 /* ---------- 1. RUBROS ---------- */
@@ -1607,9 +1777,9 @@ function drawRubros(focusId){
       '<div class="rub-h"><span class="ord">' + (i+1) + '</span>' +
         '<input class="rname" value="' + esc(r.name) + '" data-rf="name" data-r="' + r.id + '" placeholder="Nombre del rubro">' +
         '<div class="wbox"><input type="number" step="any" min="0" max="100" value="' + esc(r.weight) + '" data-rf="weight" data-r="' + r.id + '"><span>%</span></div>' +
-        '<button class="ico-btn" data-rmove="up" data-r="' + r.id + '" title="Subir">' + ICO.up + '</button>' +
-        '<button class="ico-btn" data-rmove="down" data-r="' + r.id + '" title="Bajar">' + ICO.down + '</button>' +
-        '<button class="ico-btn del" data-rdel="' + r.id + '" title="Eliminar rubro">' + ICO.trash + '</button>' +
+        '<button class="ico-btn" data-rmove="up" data-r="' + r.id + '" title="Subir" aria-label="Subir rubro">' + ICO.up + '</button>' +
+        '<button class="ico-btn" data-rmove="down" data-r="' + r.id + '" title="Bajar" aria-label="Bajar rubro">' + ICO.down + '</button>' +
+        '<button class="ico-btn del" data-rdel="' + r.id + '" title="Eliminar rubro" aria-label="Eliminar rubro">' + ICO.trash + '</button>' +
       '</div>' +
       '<div class="rub-b">' +
         '<div class="rub-modes">' + Object.keys(MODES).map(m =>
@@ -2344,6 +2514,7 @@ function bind(){
   $('#filters').addEventListener('click', e => {
     const b = e.target.closest('[data-filtro]'); if (!b) return;
     FILTRO = b.dataset.filtro;
+    GRID_ANIM = true;
     renderHeader(); renderGrid();
   });
   $('#btnSortAZ').addEventListener('click', () => {
@@ -2436,6 +2607,11 @@ function bind(){
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !typing) { e.preventDefault(); undo(); }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') { e.preventDefault(); if (!document.body.classList.contains('previewing')) openPrint(); else window.print(); }
     if (e.key === '/' && !typing) { e.preventDefault(); $('#search').focus(); }
+  });
+  let rzT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(rzT);
+    rzT = setTimeout(() => { moverIndicador(); moverPastilla(); }, 120);
   });
   window.addEventListener('beforeprint', () => {
     if (!document.body.classList.contains('previewing')) { buildPrint(PRINT_OPTS); }
@@ -2611,6 +2787,7 @@ const CLOUD = {
 };
 let lastLocalEdit = 0;
 let FILTRO = 'todos';
+let GRID_ANIM = false;
 
 let MEM_CFG = null;
 function cloudConfig(){
@@ -2975,6 +3152,8 @@ function bindGate(){
 S = load();
 document.documentElement.setAttribute('data-theme', S.settings.theme);
 if (!STORAGE_OK) document.body.classList.add('nostore-on');
+document.body.classList.add('booting');
+setTimeout(() => document.body.classList.remove('booting'), 1300);
 bind();
 bindGate();
 renderAll();

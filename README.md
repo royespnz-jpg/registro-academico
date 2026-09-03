@@ -123,6 +123,9 @@ cualquier computadora, tablet o celular y encuentra el registro igual.
 Para ver la ficha de un estudiante, pase el ratón por su fila y pulse el icono de ficha junto
 al nombre.
 
+La interfaz respeta la preferencia **«reducir movimiento»** del sistema: si está activada, las
+animaciones se desactivan y todo aparece de inmediato.
+
 ---
 
 ## Proveedores de inicio de sesión
