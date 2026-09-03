@@ -13,6 +13,13 @@ con Google para que todo quede guardado en la nube.
   divisor de la asistencia se ajusta solo.
 - **Todo es editable**: nombres de secciones, institución, rubros, pesos, cantidad de exámenes,
   nota mínima de aprobación y etiquetas.
+- **Ficha por estudiante.** Desglose rubro por rubro, cuánto aporta cada uno y —lo más útil—
+  **cuántos puntos necesita en los rubros pendientes** para alcanzar la nota mínima.
+- **Boleta individual imprimible** para reuniones con encargados.
+- **Condición y adecuación.** Estudiantes retirados quedan fuera del promedio; las adecuaciones
+  (acceso, no significativa, significativa) se marcan en la rejilla y en el acta.
+- **Filtros rápidos**: aprobados, en riesgo, reprobados, sin datos, retirados.
+- **Configuración inicial guiada**: cada docente crea sus propias secciones desde cero.
 
 > **Privacidad**: este repositorio **no contiene ningún dato de estudiantes**. Las listas y las
 > notas viven en su propia base de datos de Firebase, protegidas por las reglas de
@@ -79,10 +86,12 @@ Sin esto, el botón de Google da el error `auth/unauthorized-domain`.
 Firebase → **Authentication → Settings → Dominios autorizados → Agregar dominio** →
 escriba `SU-USUARIO.github.io` → **Agregar**.
 
-### 5. Cargar sus estudiantes
+### 5. Empezar a usarla
 
-Abra la dirección de GitHub Pages → **Continuar con Google** → menú lateral
-**Respaldo y datos → Restaurar desde archivo** → elija su `mis-estudiantes.json`.
+Abra la dirección de GitHub Pages → **Continuar con Google**. La primera vez aparece una
+configuración guiada de tres pasos (su nombre, el periodo lectivo y sus secciones).
+
+Si ya tiene un respaldo, use en su lugar **Respaldo y datos → Restaurar desde archivo**.
 
 Eso sube todo a su cuenta. De ahí en adelante no hay que volver a hacerlo: entra desde
 cualquier computadora, tablet o celular y encuentra el registro igual.
@@ -110,6 +119,9 @@ cualquier computadora, tablet o celular y encuentra el registro igual.
 | `/` | Ir al buscador |
 | `Ctrl + Z` | Deshacer |
 | `Ctrl + P` | Imprimir el acta |
+
+Para ver la ficha de un estudiante, pase el ratón por su fila y pulse el icono de ficha junto
+al nombre.
 
 ---
 
