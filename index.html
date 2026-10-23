@@ -743,14 +743,22 @@ table.acta tfoot td{background:#EAEAEA;font-weight:700;font-size:8pt}
 .doc-foot{display:flex;justify-content:space-between;font-size:7pt;color:#444;margin-top:12px;border-top:.5pt solid #999;padding-top:4px}
 
 @media print{
-  @page{size:A4 landscape;margin:10mm}
-  html,body{background:#fff !important;height:auto;overflow:visible}
+  /* "landscape" sin tamaño fijo: se adapta al papel elegido (Carta u Oficio, no solo A4) */
+  @page{size:landscape;margin:10mm}
+  /* la vista previa (body.previewing) fija la hoja a 297 mm dentro de una capa con scroll;
+     al imprimir hay que anular todo eso o el navegador recorta la tabla a una sola página */
+  html,body,body.previewing{background:#fff !important;height:auto !important;overflow:visible !important}
   .app,.scrim,.toast-wrap,.pv-bar{display:none !important}
-  #printRoot{display:block !important;position:static;padding:0;background:#fff}
-  .sheet{width:auto;min-height:0;margin:0;padding:0;box-shadow:none;page-break-after:always}
+  #printRoot,body.previewing #printRoot{display:block !important;position:static !important;inset:auto !important;overflow:visible !important;padding:0 !important;background:#fff !important}
+  .sheet,body.previewing .sheet{width:auto !important;min-height:0 !important;margin:0 !important;padding:0 !important;box-shadow:none !important;page-break-after:always}
   .sheet:last-child{page-break-after:auto}
   table.acta tbody tr{page-break-inside:avoid}
   thead{display:table-header-group}
+  /* filas algo más bajas en papel: hasta ~20 estudiantes caben con firmas en una hoja */
+  table.acta th,table.acta td{padding:1.7pt 3pt}
+  .signs{margin-top:12px}
+  .sign .ln{height:22px}
+  .doc-foot{margin-top:8px}
 }
 @media (max-width:1080px){
   .app{grid-template-columns:1fr}
@@ -2353,7 +2361,8 @@ function openPrint(){
       '<div class="divider"></div>' +
       '<div style="font-size:12px;color:var(--ink-3);line-height:1.6">' +
         'Sugerencia: en el diálogo de impresión elija <b>orientación horizontal</b> y active <b>gráficos de fondo</b> ' +
-        'si desea el sombreado de los encabezados. El acta ya está configurada para tamaño A4 horizontal.' +
+        'si desea el sombreado de los encabezados. Para PDF, elija el destino <b>Guardar como PDF</b>. ' +
+        'Las secciones con muchos estudiantes ocupan dos hojas y el encabezado de la tabla se repite.' +
       '</div>' +
     '</div>' +
     '<div class="m-foot"><div class="spacer"></div><button class="btn" data-close>Cancelar</button>' +
