@@ -106,8 +106,11 @@ cualquier computadora, tablet o celular y encuentra el registro igual.
   vuelve la conexión.
 - Si abre la app en dos dispositivos, los cambios del otro aparecen solos — nunca mientras
   usted está digitando.
-- La primera vez que inicia sesión en una computadora donde ya había notas digitadas, la app
-  compara las dos versiones y le deja elegir cuál conservar. **Nunca borra nada sin preguntar.**
+- **Cada cuenta tiene su propio registro.** Una persona que entra por primera vez empieza en
+  blanco (sin secciones, sin nombre de docente) y el asistente le pide sus datos, aunque esa
+  computadora la haya usado otra docente. Cada cuenta guarda su copia del navegador aparte.
+- Si en esa computadora había notas suyas sin subir, la app compara las dos versiones y le deja
+  elegir cuál conservar. **Nunca borra nada sin preguntar.**
 - Aun con la nube, conviene bajar un respaldo `.json` de vez en cuando desde
   **Respaldo y datos**.
 
@@ -124,27 +127,16 @@ Para ver la ficha de un estudiante, pase el ratón por su fila y pulse el icono 
 al nombre.
 
 La interfaz respeta la preferencia **«reducir movimiento»** del sistema: si está activada, las
-animaciones se desactivan y todo aparece de inmediato.
+animaciones se desactivan y todo aparece de inmediato. Para verlas igual, en **Ajustes generales →
+Animaciones** elija **«Siempre activas»**.
 
 ---
 
-## Proveedores de inicio de sesión
+## Inicio de sesión
 
-La pantalla de acceso muestra los tres: **Google, Microsoft y Facebook**. Cada uno debe estar
-activado en **Firebase → Authentication → Sign-in method**:
-
-| Proveedor | Qué hay que hacer |
-|---|---|
-| **Google** | Activarlo en Firebase y elegir un correo de soporte. Dos clics, nada más. |
-| **Microsoft** | Además de activarlo, registrar una aplicación en [Azure Portal](https://portal.azure.com) (App registrations) y pegar en Firebase el *Application ID* y el *secret*. |
-| **Facebook** | Además de activarlo, crear una app en [Meta for Developers](https://developers.facebook.com), agregar el producto *Facebook Login* y pegar en Firebase el *App ID* y el *App Secret*. |
-
-Mientras un proveedor no esté activado, su botón aparece pero al pulsarlo avisa
-«Ese proveedor no está activado en Firebase». Para esconder alguno, en `index.html`:
-
-```js
-const PROVEEDORES = { google: true, microsoft: false, facebook: false };
-```
+Se entra con **Google**: se activa en **Firebase → Authentication → Sign-in method → Google**
+(activar y elegir un correo de soporte; dos clics). También queda, escondido tras un enlace, el
+acceso con correo y contraseña.
 
 ---
 
