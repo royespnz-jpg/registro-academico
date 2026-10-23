@@ -126,9 +126,8 @@ cualquier computadora, tablet o celular y encuentra el registro igual.
 Para ver la ficha de un estudiante, pase el ratón por su fila y pulse el icono de ficha junto
 al nombre.
 
-La interfaz respeta la preferencia **«reducir movimiento»** del sistema: si está activada, las
-animaciones se desactivan y todo aparece de inmediato. Para verlas igual, en **Ajustes generales →
-Animaciones** elija **«Siempre activas»**.
+Las animaciones de la interfaz van **siempre activas**, aunque el sistema tenga encendido
+«reducir movimiento».
 
 ---
 

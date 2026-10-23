@@ -600,16 +600,6 @@ body.gated .app{filter:blur(3px) saturate(.8);pointer-events:none;user-select:no
   --e-spring:cubic-bezier(.34,1.4,.5,1);      /* rebote contenido */
 }
 
-/* Quien pide menos movimiento, recibe menos movimiento (salvo que en Ajustes elija «siempre»). */
-@media (prefers-reduced-motion: reduce){
-  :root:not(.motion-on) *,:root:not(.motion-on) *::before,:root:not(.motion-on) *::after{
-    animation-duration:.01ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:.01ms !important;
-    scroll-behavior:auto !important;
-  }
-}
-
 /* ---------- indicador deslizante de secciones ---------- */
 .sec-list{position:relative}
 .sec-ind{
@@ -1370,18 +1360,16 @@ function toast(msg, kind){
    MOVIMIENTO
    Motion (motion.dev) da los resortes y las cuentas cuando cargó;
    si no cargó, lo mismo se hace con requestAnimationFrame y CSS.
-   Se respeta «reducir movimiento» del sistema, salvo que en
-   Ajustes generales se elija «siempre activas».
+   Las animaciones van siempre, aunque el sistema pida reducir el
+   movimiento: así se pidió, porque en ese caso no se veía ninguna.
    ============================================================ */
-const PIDE_MENOS = matchMedia('(prefers-reduced-motion: reduce)');
 const EASE_OUT = [0.16, 1, 0.3, 1];
-function sinMovimiento(){ return PIDE_MENOS.matches && !(S && S.settings && S.settings.motion === 'on'); }
-function motionLib(){ return (!sinMovimiento() && window.Motion && window.Motion.animate) ? window.Motion : null; }
+function motionLib(){ return (window.Motion && window.Motion.animate) ? window.Motion : null; }
 
 /** Cuenta de `desde` a `hasta`; `pintar` recibe cada valor intermedio. */
 function contar(desde, hasta, pintar, dur){
   dur = dur || 0.9;
-  if (sinMovimiento() || !isFinite(hasta) || desde === hasta) { pintar(hasta); return; }
+  if (!isFinite(hasta) || desde === hasta) { pintar(hasta); return; }
   const M = motionLib();
   if (M) { M.animate(desde, hasta, { duration: dur, ease: EASE_OUT, onUpdate: pintar }); return; }
   const t0 = performance.now();
@@ -1396,10 +1384,14 @@ function contar(desde, hasta, pintar, dur){
 /** Aplica `cambio` dentro de una transición de vista si el navegador la tiene. */
 function transicion(cambio, clase){
   /* con la pestaña oculta el navegador cancela la transición: se aplica el cambio sin ella */
-  if (!document.startViewTransition || sinMovimiento() || document.visibilityState !== 'visible') { cambio(); return null; }
+  if (!document.startViewTransition || document.visibilityState !== 'visible') { cambio(); return null; }
   const html = document.documentElement;
   if (clase) html.classList.add(clase);
-  const t = document.startViewTransition(cambio);
+  let hecho = false;
+  const t = document.startViewTransition(() => { hecho = true; cambio(); });
+  /* la transición espera un cuadro para empezar; si el navegador no está dibujando
+     (ventana tapada), se salta y el cambio se aplica igual, sin animación */
+  setTimeout(() => { if (!hecho) t.skipTransition(); }, 500);
   /* si se cancela a medias, el cambio ya quedó aplicado: no hay nada que avisar */
   t.ready.catch(() => {});
   t.finished.catch(() => {}).then(() => { if (clase) html.classList.remove(clase); });
@@ -1453,7 +1445,7 @@ function defaultState(){
     teacher: '',
     subject: '',
     term: { name: 'II Semestre ' + y, start: y + '-07-13', end: y + '-12-18', off: {} },
-    settings: { theme: 'light', decimals: 2, round: 'int', condMode: 'reported', motion: 'auto' },
+    settings: { theme: 'light', decimals: 2, round: 'int', condMode: 'reported' },
     sections: [],
     active: null
   };
@@ -1493,7 +1485,7 @@ function load(clave){
   return defaultState();
 }
 function normalize(p){
-  p.settings = Object.assign({ theme:'light', decimals:2, round:'int', condMode:'reported', motion:'auto' }, p.settings||{});
+  p.settings = Object.assign({ theme:'light', decimals:2, round:'int', condMode:'reported' }, p.settings||{});
   p.term = Object.assign({ name:'II Semestre', start:'2026-07-13', end:'2026-12-18', off:{} }, p.term||{});
   if (Array.isArray(p.term.off)) { const o={}; p.term.off.forEach(x=>o[x.date]={reason:x.reason||'',scope:x.scope||'all'}); p.term.off=o; }
   (p.sections||[]).forEach(s => {
@@ -1642,7 +1634,6 @@ const ICO = {
 function renderAll(){
   GRID_ANIM = true;
   document.documentElement.setAttribute('data-theme', S.settings.theme);
-  document.documentElement.classList.toggle('motion-on', S.settings.motion === 'on');
   $('#themeLabel').textContent = S.settings.theme === 'dark' ? 'Modo claro' : 'Modo oscuro';
   $('#brandTeacher').textContent = S.teacher || 'Sin configurar';
   document.title = 'Registro Académico' + (S.teacher ? ' · ' + S.teacher : '');
@@ -1710,7 +1701,7 @@ function renderHeader(){
   KPI_SEC = sec.id;
   const h = $('#hSection');
   h.innerHTML = '<span class="ln"><span>Sección</span></span> <span class="ln"><span style="--l:1"><em>' + esc(sec.name) + '</em></span></span>';
-  if (nuevaSeccion && !sinMovimiento()) { h.classList.remove('rise'); void h.offsetWidth; h.classList.add('rise'); }
+  if (nuevaSeccion) { h.classList.remove('rise'); void h.offsetWidth; h.classList.add('rise'); }
   $('#hSub').innerHTML = '<b>' + esc(sec.subject || '—') + '</b> · ' + esc(sec.teacher || S.teacher) + ' · ' + esc(S.term.name);
 
   const tw = totalWeight(sec);
@@ -1766,7 +1757,6 @@ function renderFiltros(sec, st){
 function cifra(n, dec){ return '<span data-cnt="' + n + '" data-dec="' + dec + '">' + nf(n, dec) + '</span>'; }
 /** Las tarjetas entran escalonadas con resorte y sus cifras cuentan desde cero. */
 function entrarCifras(kp){
-  if (sinMovimiento()) return;
   kp.classList.remove('enter'); void kp.offsetWidth; kp.classList.add('enter');
   kp.querySelectorAll('[data-cnt]').forEach(el => {
     const fin = +el.dataset.cnt, dec = +el.dataset.dec;
@@ -1938,7 +1928,7 @@ function refreshRow(sec, stu){
     const nuevo = nf(c.reported, S.settings.round === 'none' ? S.settings.decimals : (S.settings.round === 'one' || S.settings.round === 'half' ? 1 : 0));
     if (f.textContent !== nuevo) {
       destellar(f.closest('td'));
-      if (!sinMovimiento()) { f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop'); }
+      f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop');
     }
     f.textContent = nuevo;
     f.style.color = gradeColor(sec, c);
@@ -2432,11 +2422,6 @@ function openSettings(){
           '<option value="exact"' + (st.condMode==='exact'?' selected':'') + '>La nota exacta</option></select>' +
           '<span class="hint">Ej.: con 69,6 y redondeo a entero, la nota reportada es 70 y el estudiante aprueba.</span></label>' +
       '</div>' +
-      '<div class="divider"></div><div class="sec-title">Interfaz</div>' +
-      '<label class="field" style="max-width:340px"><span>Animaciones</span><select class="inp" data-gf="motion">' +
-        '<option value="auto"' + (st.motion !== 'on' ? ' selected' : '') + '>Según el sistema</option>' +
-        '<option value="on"' + (st.motion === 'on' ? ' selected' : '') + '>Siempre activas</option></select>' +
-        '<span class="hint">' + (PIDE_MENOS.matches ? 'Su sistema pide reducir el movimiento; con «Siempre activas» la app se anima igual.' : 'Su sistema permite animaciones.') + '</span></label>' +
       '<div class="divider"></div>' +
       '<div class="sec-title">Aplicar a todas las secciones</div>' +
       '<div style="display:flex;gap:9px;flex-wrap:wrap">' +
@@ -2456,7 +2441,6 @@ function openSettings(){
   $('#modal').addEventListener('change', e => {
     const f = e.target.dataset.gf; if (!f || e.target.tagName !== 'SELECT') return;
     S.settings[f] = f === 'decimals' ? +e.target.value : e.target.value; save(); renderGrid();
-    if (f === 'motion') document.documentElement.classList.toggle('motion-on', S.settings.motion === 'on');
   });
   $('#applyRubros').addEventListener('click', () => {
     const src = activeSection(); if (!src) return;
